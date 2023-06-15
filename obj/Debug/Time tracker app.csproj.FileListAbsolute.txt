@@ -4,3 +4,4 @@ C:\Users\matte\source\repos\Time tracker app\bin\Debug\Time tracker app.pdb
 C:\Users\matte\source\repos\Time tracker app\obj\Debug\Time tracker app.csproj.CoreCompileInputs.cache
 C:\Users\matte\source\repos\Time tracker app\obj\Debug\Time tracker app.exe
 C:\Users\matte\source\repos\Time tracker app\obj\Debug\Time tracker app.pdb
+C:\Users\matte\source\repos\Time tracker app\obj\Debug\Time tracker app.csproj.AssemblyReference.cache
