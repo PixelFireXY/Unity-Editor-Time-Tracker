@@ -88,11 +88,18 @@ namespace Time_tracker_app
         {
             string path = "UsageLogs.txt";
 
-            using (StreamWriter writer = new StreamWriter(path, true))
+            try
             {
-                writer.WriteLine("Unity session started at " + start + " and ended at " + end);
-                writer.WriteLine("Total time of usage: " + usageTime.ToString(@"hh\:mm\:ss"));
-                writer.WriteLine("-------------------------------------------------");
+                using (StreamWriter writer = new StreamWriter(path, true))
+                {
+                    writer.WriteLine("Unity session started at " + start + " and ended at " + end);
+                    writer.WriteLine("Total time of usage: " + usageTime.ToString(@"hh\:mm\:ss"));
+                    writer.WriteLine("-------------------------------------------------");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message}");
             }
         }
 
