@@ -10,6 +10,8 @@ namespace Time_tracker_app
         static DateTime startTime;
         static Process unityProcess = null;
 
+        static string logPath = Path.Combine(Environment.CurrentDirectory, "UsageLogs.txt");
+
         static void Main(string[] args)
         {
             ExecuteTrackingBehaviour();
@@ -33,19 +35,25 @@ namespace Time_tracker_app
             unityProcess.Exited += (sender, eventArgs) => OnUnityExit();
 
             Console.WriteLine("Commands available:");
-            Console.WriteLine("'time': Shows total time of current session.");
+            Console.WriteLine("'session': Shows total time of current session.");
+            Console.WriteLine("'today': Shows the total time of today.");
             Console.WriteLine("'total': Shows total time from the log file.");
             Console.WriteLine("'open': Opens the log file's folder.");
-            Console.WriteLine("'stop': Stop the tracking and exit the application.");
+            Console.WriteLine("'stop': Stop the tracking.");
 
             while (unityProcess != null && !unityProcess.HasExited)
             {
                 string command = Console.ReadLine();
 
-                if (command.Equals("time"))
+                if (command.Equals("session"))
                 {
                     TimeSpan currentSessionTime = DateTime.Now - startTime;
                     Console.WriteLine("Current session time: " + currentSessionTime.ToString(@"hh\:mm\:ss"));
+                }
+                else if (command == "today")
+                {
+                    var todayUsageTime = CalculateUsageTimeForToday();
+                    Console.WriteLine($"Total usage time for today: {todayUsageTime:hh\\:mm\\:ss}");
                 }
                 else if (command.Equals("total"))
                 {
@@ -66,7 +74,7 @@ namespace Time_tracker_app
                 else if (command.Equals("stop"))
                 {
                     OnUnityExit();
-                    Console.WriteLine("Tracking stopped.");
+                    Console.WriteLine("Tracking stopped. Press any key to close the console.");
                     _ = Console.ReadKey();
                     Environment.Exit(0);
                 }
@@ -107,7 +115,13 @@ namespace Time_tracker_app
             {
                 Console.WriteLine($"ERROR: {ex.Message}");
             }
+            finally
+            {
+                Console.WriteLine("Log correctly saved.");
+            }
         }
+
+        /******************** Utils ********************/
 
         static TimeSpan CalculateTotalTimeFromLog()
         {
@@ -134,6 +148,37 @@ namespace Time_tracker_app
             }
 
             return totalTime;
+        }
+
+        static TimeSpan CalculateUsageTimeForToday()
+        {
+            TimeSpan todayUsageTime = new TimeSpan();
+
+            if (File.Exists(logPath))
+            {
+                using (StreamReader reader = new StreamReader(logPath))
+                {
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.StartsWith("Unity session started at "))
+                        {
+                            string date = line.Substring("Unity session started at ".Length).Split(' ')[0];
+                            DateTime sessionDate;
+                            if (DateTime.TryParse(date, out sessionDate) && sessionDate.Date == DateTime.Now.Date)
+                            {
+                                line = reader.ReadLine();  // Read the next line for the total time of usage
+                                string time = line.Substring("Total time of usage: ".Length).Split(' ')[0];
+                                string[] parts = time.Split(':');
+                                todayUsageTime += new TimeSpan(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return todayUsageTime;
         }
     }
 }
