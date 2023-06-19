@@ -7,7 +7,7 @@ namespace Time_tracker_app
 {
     class Program
     {
-        static DateTime startTime;
+        static DateTime? startTime;
         static Process unityProcess = null;
 
         static string logPath = Path.Combine(Environment.CurrentDirectory, "UsageLogs.txt");
@@ -47,8 +47,12 @@ namespace Time_tracker_app
 
                 if (command.Equals("session"))
                 {
-                    TimeSpan currentSessionTime = DateTime.Now - startTime;
-                    Console.WriteLine("Current session time: " + currentSessionTime.ToString(@"hh\:mm\:ss"));
+                    // Add the current session's usage time if Unity is currently running
+                    if (startTime.HasValue)
+                    {
+                        TimeSpan currentSessionTime = DateTime.Now - startTime.Value;
+                        Console.WriteLine("Current session time: " + currentSessionTime.ToString(@"hh\:mm\:ss"));
+                    }
                 }
                 else if (command == "today")
                 {
@@ -89,13 +93,16 @@ namespace Time_tracker_app
 
         static void OnUnityExit()
         {
+            if (startTime.HasValue is false)
+                return;
+
             DateTime endTime = DateTime.Now;
-            TimeSpan usageTime = endTime - startTime;
+            TimeSpan usageTime = endTime - startTime.Value;
 
             Console.WriteLine("Unity exited at: " + endTime);
             Console.WriteLine("Total time of usage: " + usageTime.ToString(@"hh\:mm\:ss"));
 
-            WriteToLog(startTime, endTime, usageTime);
+            WriteToLog(startTime.Value, endTime, usageTime);
         }
 
         static void WriteToLog(DateTime start, DateTime end, TimeSpan usageTime)
@@ -178,7 +185,14 @@ namespace Time_tracker_app
                 }
             }
 
+            // Add the current session's usage time if Unity is currently running
+            if (startTime.HasValue && startTime.Value.Date == DateTime.Now.Date)
+            {
+                todayUsageTime += DateTime.Now - startTime.Value;
+            }
+
             return todayUsageTime;
         }
+
     }
 }
