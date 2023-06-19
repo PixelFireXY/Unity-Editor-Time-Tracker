@@ -1,2 +1,4 @@
 bin/Release/
 obj/Release/
+bin/Debug/
+obj/Debug/

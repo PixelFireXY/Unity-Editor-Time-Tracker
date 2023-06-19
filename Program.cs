@@ -12,6 +12,12 @@ namespace Time_tracker_app
 
         static void Main(string[] args)
         {
+            ExecuteTrackingBehaviour();
+        }
+        /******************** Tracking behaviour ********************/
+
+        static void ExecuteTrackingBehaviour()
+        {
             Console.WriteLine("Waiting for Unity to start...");
 
             while (unityProcess == null)
