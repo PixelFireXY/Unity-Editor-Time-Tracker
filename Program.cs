@@ -62,7 +62,9 @@ namespace Time_tracker_app
                 else if (command.Equals("total"))
                 {
                     TimeSpan totalTime = CalculateTotalTimeFromLog();
-                    Console.WriteLine("Total time from the log file: " + totalTime.ToString(@"hh\:mm\:ss"));
+                    string formattedTime = string.Format("{0} day(s) {1} hour(s) {2} minute(s) {3} second(s)",
+                        (int)totalTime.TotalDays, totalTime.Hours, totalTime.Minutes, totalTime.Seconds);
+                    Console.WriteLine("Total time from the log file: " + formattedTime);
                 }
                 else if (command.Equals("open"))
                 {
