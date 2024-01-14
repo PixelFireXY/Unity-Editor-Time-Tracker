@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Time_tracker_app
 {
@@ -12,8 +13,12 @@ namespace Time_tracker_app
 
         static string logPath = Path.Combine(Environment.CurrentDirectory, "UsageLogs.txt");
 
+        const string APPLICATION_TITLE = "Unity time tracker";
+
         static void Main(string[] args)
         {
+            Console.Title = APPLICATION_TITLE;
+
             ExecuteTrackingBehaviour();
         }
         /******************** Tracking behaviour ********************/
@@ -25,7 +30,7 @@ namespace Time_tracker_app
             while (unityProcess == null)
             {
                 unityProcess = Process.GetProcesses().FirstOrDefault(p => p.ProcessName.Equals("Unity"));
-                System.Threading.Thread.Sleep(1000); // check every second
+                Thread.Sleep(1000); // check every second
             }
 
             startTime = DateTime.Now;
@@ -40,6 +45,8 @@ namespace Time_tracker_app
             Console.WriteLine("'total': Shows total time from the log file.");
             Console.WriteLine("'open': Opens the log file's folder.");
             Console.WriteLine("'stop': Stop the tracking.");
+
+            ExecuteTitleUpdate();
 
             while (unityProcess != null && !unityProcess.HasExited)
             {
@@ -91,6 +98,16 @@ namespace Time_tracker_app
             }
 
             _ = Console.ReadKey();
+        }
+
+        static void ExecuteTitleUpdate()
+        {
+            DateTime startTime = DateTime.Now;
+
+            // Start the thread for updating the console title
+            Thread titleUpdateThread = new Thread(() => UpdateConsoleTitle(startTime));
+            titleUpdateThread.IsBackground = true; // This makes the thread a background thread
+            titleUpdateThread.Start();
         }
 
         static void OnUnityExit()
@@ -194,6 +211,16 @@ namespace Time_tracker_app
             }
 
             return todayUsageTime;
+        }
+
+        static void UpdateConsoleTitle(DateTime startTime)
+        {
+            while (true)
+            {
+                TimeSpan elapsedTime = DateTime.Now - startTime;
+                Console.Title = $"{APPLICATION_TITLE} - Current Session Time: {elapsedTime.Hours:D2}:{elapsedTime.Minutes:D2}:{elapsedTime.Seconds:D2}";
+                Thread.Sleep(1000); // Update every second
+            }
         }
 
     }
