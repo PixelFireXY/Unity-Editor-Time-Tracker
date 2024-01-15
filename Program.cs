@@ -15,6 +15,8 @@ namespace Time_tracker_app
 
         const string APPLICATION_TITLE = "Unity time tracker";
 
+        static bool hasSessionStopped;
+
         static void Main(string[] args)
         {
             Console.Title = APPLICATION_TITLE;
@@ -112,6 +114,8 @@ namespace Time_tracker_app
 
         static void OnUnityExit()
         {
+            hasSessionStopped = true;
+
             if (startTime.HasValue is false)
                 return;
 
@@ -217,6 +221,9 @@ namespace Time_tracker_app
         {
             while (true)
             {
+                if (hasSessionStopped is true)
+                    return;
+
                 TimeSpan elapsedTime = DateTime.Now - startTime;
                 Console.Title = $"{APPLICATION_TITLE} - Current Session Time: {elapsedTime.Hours:D2}:{elapsedTime.Minutes:D2}:{elapsedTime.Seconds:D2}";
                 Thread.Sleep(1000); // Update every second
